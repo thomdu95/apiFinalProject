@@ -78,6 +78,7 @@ api.put('/articles/:id', verifyToken, (req, res) => {
                 elem.description = req.body.description || elem.description
                 elem.content = req.body.content || elem.content
                 elem.mainPic = req.body.mainPic || elem.mainPic
+                elem.modified_at = Date.now()
             }
         })
         if (!finded) throw "Article does not exist at ID = " + req.params.id
@@ -116,12 +117,54 @@ api.post('/articles',  verifyToken , (req, res) => {
             description: req.body.description,
             content: req.body.content,
             mainPic: req.body.mainPic,
-            id: Date.now()
+            id: Date.now(),
+            created_at: Date.now(),
+            modified_at: Date.now(),
+            like: 0,
+            dislike: 0
         }
         articles.push(newArticle)
         fs.writeFileSync('./articles.json', JSON.stringify(articles))
         res.send("SUCCESS")
 
+    } catch (error) {
+        res.status(203).send("ERROR : " + error)
+    }
+})
+
+api.post('/articles/like/:id', (req, res) => {
+    try {
+        let articles = JSON.parse(fs.readFileSync('./articles.json'))
+        let finded = false
+        articles.forEach(elem => {
+            if (elem.id == req.params.id) {
+                finded = true
+                elem.like += 1
+                elem.modified_at = Date.now()
+            }
+        })
+        if (!finded) throw "Article does not exist at ID = " + req.params.id
+        fs.writeFileSync('./articles.json', JSON.stringify(articles))
+        res.send("SUCCESS")
+    } catch (error) {
+        res.status(203).send("ERROR : " + error)
+    }
+})
+
+api.post('/articles/dislike/:id', (req, res) => {
+    try {
+        let articles = JSON.parse(fs.readFileSync('./articles.json'))
+        let finded = false
+        articles.forEach(elem => {
+            if (elem.id == req.params.id) {
+                finded = true
+                elem.dislike+= 1
+                elem.modified_at = Date.now()
+            }
+        })
+        if (!finded) throw "Article does not exist at ID = " + req.params.id
+        fs.writeFileSync('./articles.json', JSON.stringify(articles))
+        res.send("SUCCESS")
     } catch (error) {
         res.status(203).send("ERROR : " + error)
     }
