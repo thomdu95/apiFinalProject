@@ -3,7 +3,7 @@ const cors = require("cors")
 const fs = require("fs")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
-const { verifyToken } = require("./middleware")
+const { verifyToken, verifyTokenDel } = require("./middleware")
 
 
 let api = express()
@@ -89,7 +89,7 @@ api.put('/articles/:id', verifyToken, (req, res) => {
     }
 })
 
-api.delete('/articles/:id', verifyToken, (req, res) => {
+api.delete('/articles/:id/:email', verifyTokenDel, (req, res) => {
     try {
         let articles = JSON.parse(fs.readFileSync('./articles.json'))
         let finded = articles.findIndex(elem => elem.id == req.params.id)
@@ -158,7 +158,7 @@ api.post('/articles/dislike/:id', (req, res) => {
         articles.forEach(elem => {
             if (elem.id == req.params.id) {
                 finded = true
-                elem.dislike+= 1
+                elem.dislike += 1
                 elem.modified_at = Date.now()
             }
         })
